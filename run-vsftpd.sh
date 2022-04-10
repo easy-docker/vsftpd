@@ -19,8 +19,8 @@ fi
 
 # Create home dir and update vsftpd user db:
 if [[ ! -f /config/virtual_users.txt ]]; then
-    mkdir -p "/home/vsftpd/${FTP_USER}"
-    chown -R ftp:ftp /home/vsftpd/
+    mkdir -p "/vsftpd/${FTP_USER}"
+    chown -R ftp:ftp /vsftpd/
     echo -e "${FTP_USER}\n${FTP_PASS}" > /config/virtual_users.txt
 fi
 /usr/bin/db_load -T -t hash -f /config/virtual_users.txt /config/virtual_users.db
@@ -77,7 +77,8 @@ cat << EOB
     · FTP Password: $FTP_PASS
     · Redirect vsftpd log to STDOUT: Yes.
 EOB
-    /usr/bin/ln -sf /dev/stdout $LOG_FILE
+touch ${LOG_FILE}
+tail -f ${LOG_FILE} | tee /dev/fd/1 &
 fi
 # Run vsftpd:
 &>/dev/null /usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf

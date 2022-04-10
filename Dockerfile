@@ -6,7 +6,7 @@ ARG GROUP_ID=33
 MAINTAINER Fer Uria <fauria@gmail.com>
 LABEL Description="vsftpd Docker image based on Centos 7. Supports passive mode and virtual users." \
 	License="Apache License 2.0" \
-	Usage="docker run -d -p [HOST PORT NUMBER]:21 -v [HOST FTP HOME]:/home/vsftpd fauria/vsftpd" \
+	Usage="docker run -d -p [HOST PORT NUMBER]:21 -v [HOST FTP HOME]:/vsftpd fauria/vsftpd" \
 	Version="1.0"
 
 COPY vsftpd.conf /etc/vsftpd/
@@ -14,13 +14,14 @@ COPY vsftpd_virtual /etc/pam.d/
 COPY run-vsftpd.sh /usr/sbin/
 
 RUN yum -y update \
-    yum install -y vsftpd db4-utils iproute \
+    yum install -y vsftpd db4-utils iproute tee \
     && yum clean all \
     && usermod -u ${USER_ID} ftp \
     && groupmod -g ${GROUP_ID} ftp \
     && chmod +x /usr/sbin/run-vsftpd.sh \
-    && mkdir -p /home/vsftpd/ \
-    && mkdir -p /config \
+    && mkdir -p /vsftpd/ \
+    && mkdir -p /config/user \
+    && mkdir -p /logs \
     && chown -R ftp:ftp /home/vsftpd/
 
 ENV FTP_USER **String**
@@ -38,8 +39,8 @@ ENV REVERSE_LOOKUP_ENABLE YES
 ENV PASV_PROMISCUOUS NO
 ENV PORT_PROMISCUOUS NO
 
-VOLUME /home/vsftpd
-VOLUME /var/log/vsftpd
+VOLUME /vsftpd
+VOLUME /logs
 VOLUME /config
 
 EXPOSE 20 21
