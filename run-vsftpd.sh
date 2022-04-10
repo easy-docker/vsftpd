@@ -16,6 +16,7 @@ if [ "$LOG_STDOUT" = "NO" ]; then
 else
     export LOG_STDOUT='Yes.'
 fi
+mkdir -p "/config/user"
 
 # Create home dir and update vsftpd user db:
 if [[ ! -f /config/virtual_users.txt ]]; then
