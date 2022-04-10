@@ -19,7 +19,7 @@ RUN usermod -u 33 ftp \
     && mkdir -p /vsftpd/ \
     && mkdir -p /config/user \
     && mkdir -p /logs \
-    && chown -R ftp:ftp /home/vsftpd/
+    && chown -R ftp:ftp /vsftpd/
 
 ENV FTP_USER **String**
 ENV FTP_PASS **Random**
