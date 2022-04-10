@@ -1,8 +1,5 @@
 FROM centos:7
 
-ARG USER_ID=33
-ARG GROUP_ID=33
-
 MAINTAINER Fer Uria <fauria@gmail.com>
 LABEL Description="vsftpd Docker image based on Centos 7. Supports passive mode and virtual users." \
 	License="Apache License 2.0" \
@@ -13,11 +10,10 @@ COPY vsftpd.conf /etc/vsftpd/
 COPY vsftpd_virtual /etc/pam.d/
 COPY run-vsftpd.sh /usr/sbin/
 
-RUN yum -y update \
-    yum install -y vsftpd db4-utils iproute tee \
-    && yum clean all \
-    && usermod -u ${USER_ID} ftp \
-    && groupmod -g ${GROUP_ID} ftp \
+RUN yum -y update && yum clean all
+RUN yum install -y vsftpd db4-utils iproute tee && yum clean all
+RUN usermod -u 33 ftp \
+    && groupmod -n ftp tape \
     && chmod +x /usr/sbin/run-vsftpd.sh \
     && mkdir -p /vsftpd/ \
     && mkdir -p /config/user \
