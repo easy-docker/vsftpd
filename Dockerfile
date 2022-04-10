@@ -11,7 +11,7 @@ COPY vsftpd_virtual /etc/pam.d/
 COPY run-vsftpd.sh /usr/sbin/
 
 RUN yum -y update && yum clean all
-RUN yum install -y vsftpd db4-utils iproute tee && yum clean all
+RUN yum install -y vsftpd db4-utils iproute && yum clean all
 RUN usermod -u 33 -g 33 ftp \
     && groupmod -n ftpold ftp \
     && groupmod -n ftp tape \

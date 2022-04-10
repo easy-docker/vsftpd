@@ -78,7 +78,7 @@ cat << EOB
     · Redirect vsftpd log to STDOUT: Yes.
 EOB
 touch ${LOG_FILE}
-tail -f ${LOG_FILE} | tee /dev/fd/1 &
+tail -f ${LOG_FILE} &
 fi
 # Run vsftpd:
 &>/dev/null /usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf
