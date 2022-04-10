@@ -9,15 +9,19 @@ LABEL Description="vsftpd Docker image based on Centos 7. Supports passive mode 
 	Usage="docker run -d -p [HOST PORT NUMBER]:21 -v [HOST FTP HOME]:/home/vsftpd fauria/vsftpd" \
 	Version="1.0"
 
-RUN yum -y update && yum clean all
-RUN yum install -y \
-	vsftpd \
-	db4-utils \
-	db4 \
-	iproute && yum clean all
+COPY vsftpd.conf /etc/vsftpd/
+COPY vsftpd_virtual /etc/pam.d/
+COPY run-vsftpd.sh /usr/sbin/
 
-RUN usermod -u ${USER_ID} ftp
-RUN groupmod -g ${GROUP_ID} ftp
+RUN yum -y update \
+    yum install -y vsftpd db4-utils iproute \
+    && yum clean all \
+    && usermod -u ${USER_ID} ftp \
+    && groupmod -g ${GROUP_ID} ftp \
+    && chmod +x /usr/sbin/run-vsftpd.sh \
+    && mkdir -p /home/vsftpd/ \
+    && mkdir -p /config \
+    && chown -R ftp:ftp /home/vsftpd/
 
 ENV FTP_USER **String**
 ENV FTP_PASS **Random**
@@ -27,23 +31,16 @@ ENV PASV_ENABLE YES
 ENV PASV_MIN_PORT 21100
 ENV PASV_MAX_PORT 21110
 ENV XFERLOG_STD_FORMAT NO
-ENV LOG_STDOUT **Boolean**
+ENV LOG_STDOUT YES
 ENV FILE_OPEN_MODE 0666
 ENV LOCAL_UMASK 077
 ENV REVERSE_LOOKUP_ENABLE YES
 ENV PASV_PROMISCUOUS NO
 ENV PORT_PROMISCUOUS NO
 
-COPY vsftpd.conf /etc/vsftpd/
-COPY vsftpd_virtual /etc/pam.d/
-COPY run-vsftpd.sh /usr/sbin/
-
-RUN chmod +x /usr/sbin/run-vsftpd.sh
-RUN mkdir -p /home/vsftpd/
-RUN chown -R ftp:ftp /home/vsftpd/
-
 VOLUME /home/vsftpd
 VOLUME /var/log/vsftpd
+VOLUME /config
 
 EXPOSE 20 21
 
