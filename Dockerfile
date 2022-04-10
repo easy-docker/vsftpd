@@ -1,7 +1,7 @@
 FROM centos:7
 
-ARG USER_ID=14
-ARG GROUP_ID=50
+ARG USER_ID=33
+ARG GROUP_ID=33
 
 MAINTAINER Fer Uria <fauria@gmail.com>
 LABEL Description="vsftpd Docker image based on Centos 7. Supports passive mode and virtual users." \
