@@ -1,5 +1,35 @@
-# fauria/vsftpd
+# 快速开始
+```bash
+# 数据目录权限 33:33 ubuntu下为 www-data:www-data
+docker run -d \
+    -v $PWD/data:/vsftpd \
+    -v $PWD/config:/config \
+    -p 20:20 \
+    -p 21:21 \
+    -p 21100-21110:21100-21110 \
+    -e FTP_USER=myuser \
+    -e FTP_PASS=mypass \
+    -e PASV_ADDRESS=127.0.0.1 \
+    -e PASV_MIN_PORT=21100 \
+    -e PASV_MAX_PORT=21110 \
+    --name vsftpd \
+    --restart=always \
+    ghostry/vsftpd
+```
 
+# 增加用户
+```bash
+# 编辑文件,单数行用户名,偶数行密码
+vi config/virtual_users.txt
+# 可以针对不同用户单独配置
+vi config/user/{FTP_USER}
+# 比如管理者单独配置根目录
+# local_root=/vsftpd
+# 改完后重启即可
+docker restart vsftpd
+```
+
+# 原介绍
 ![docker_logo](https://raw.githubusercontent.com/fauria/docker-vsftpd/master/docker_139x115.png)![docker_fauria_logo](https://raw.githubusercontent.com/fauria/docker-vsftpd/master/docker_fauria_161x115.png)
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/fauria/vsftpd.svg?style=plastic)](https://hub.docker.com/r/fauria/vsftpd/)
@@ -19,7 +49,7 @@ This Docker container implements a vsftpd server, with the following features:
 You can download the image with the following command:
 
 ```bash
-docker pull fauria/vsftpd
+docker pull ghostry/vsftpd
 ```
 
 Environment variables
@@ -84,8 +114,8 @@ This image uses environment variables to allow the configuration of some paramet
 ----
 
 * Variable name: `LOG_STDOUT`
-* Default value: Empty string.
-* Accepted values: Any string to enable, empty string or not defined to disable.
+* Default value: YES.
+* Accepted values: <NO|YES>
 * Description: Output vsftpd log through STDOUT, so that it can be accessed through the [container logs](https://docs.docker.com/engine/reference/commandline/container_logs).
 
 ----
@@ -137,13 +167,13 @@ Use cases
 1) Create a temporary container for testing purposes:
 
 ```bash
-  docker run --rm fauria/vsftpd
+  docker run --rm ghostry/vsftpd
 ```
 
 2) Create a container in active mode using the default user account, with a binded data directory:
 
 ```bash
-docker run -d -p 21:21 -v /my/data/directory:/home/vsftpd --name vsftpd fauria/vsftpd
+docker run -d -p 21:21 -v /my/data/directory:/vsftpd --name vsftpd ghostry/vsftpd
 # see logs for credentials:
 docker logs vsftpd
 ```
@@ -151,19 +181,19 @@ docker logs vsftpd
 3) Create a **production container** with a custom user account, binding a data directory and enabling both active and passive mode:
 
 ```bash
-docker run -d -v /my/data/directory:/home/vsftpd \
+docker run -d -v /my/data/directory:/vsftpd \
 -p 20:20 -p 21:21 -p 21100-21110:21100-21110 \
 -e FTP_USER=myuser -e FTP_PASS=mypass \
 -e PASV_ADDRESS=127.0.0.1 -e PASV_MIN_PORT=21100 -e PASV_MAX_PORT=21110 \
---name vsftpd --restart=always fauria/vsftpd
+--name vsftpd --restart=always ghostry/vsftpd
 ```
 
 4) Manually add a new FTP user to an existing container:
 ```bash
 docker exec -i -t vsftpd bash
-mkdir /home/vsftpd/myuser
-echo -e "myuser\nmypass" >> /etc/vsftpd/virtual_users.txt
-/usr/bin/db_load -T -t hash -f /etc/vsftpd/virtual_users.txt /etc/vsftpd/virtual_users.db
+mkdir /vsftpd/myuser
+echo -e "myuser\nmypass" >> /config/virtual_users.txt
+/usr/bin/db_load -T -t hash -f /config/virtual_users.txt /config/virtual_users.db
 exit
 docker restart vsftpd
 ```
